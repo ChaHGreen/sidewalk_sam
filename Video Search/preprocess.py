@@ -1,41 +1,42 @@
 import cv2
+from moviepy.editor import VideoFileClip
 import numpy as np
 
-def preprocess_video_frames(video_path, skip_frames=5, frame_size=(224, 224), scale=True, normalize=True):
-
+def preprocess_video_frames(video_path, skip_frames=10, frame_size=(224, 224), scale=True, normalize=True):
     processed_frames = []
-    
-    # Open the video file
-    cap = cv2.VideoCapture(video_path)    ## read the video
-    frame_count = 0
+    timestamps = []
 
-    while True:
-        ret, frame = cap.read()  ## decode the frame
-        if not ret:
-            break
-        
+    # Open the video file
+    video_clip = VideoFileClip(video_path)
+
+    ## fps for the video to calculate timestamp
+    fps = video_clip.fps
+
+    # Iterate over each frame in the video
+    for frame_count, frame in enumerate(video_clip.iter_frames(fps=video_clip.fps)):
         if frame_count % skip_frames == 0:
             # Convert BGR to RGB
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            
-            resized_frame = cv2.resize(frame, frame_size)
-            
+            frame_rgb = frame[:, :, ::-1]
+
+            # Resize the frame
+            resized_frame = cv2.resize(frame_rgb, frame_size)
+
             if scale:
-                resized_frame = resized_frame / 255.0
-            
+                resized_frame = resized_frame / 255.0 ## float32
+
             if normalize:
                 mean = np.array([0.485, 0.456, 0.406])
                 std = np.array([0.229, 0.224, 0.225])
-                # Ensure resized_frame is float before subtraction and division
                 resized_frame = (resized_frame - mean) / std
+
+            timestamp = frame_count / fps
             
-            processed_frames.append(resized_frame)
-        
-        frame_count += 1
+            processed_frames.append({'frame': resized_frame, 'frameNum': frame_count, 'timestamp': timestamp})
 
-    cap.release()
-    return processed_frames   ## return RGB format
+    return processed_frames
 
-# Example usage
-video_path = 'path/to/your/video.mp4'
-processed_frames = preprocess_video_frames(video_path, skip_frames=5, frame_size=(224, 224), scale=True, normalize=True)
+if __name__ == "__main__":
+    # Example usage
+    video_path = "videos/How Green Roofs Can Help Cities  NPR.mp4"
+    processed_frames = preprocess_video_frames(video_path, skip_frames=5, frame_size=(224, 224), scale=True, normalize=True)
+    print("Number of processed frames:", len(processed_frames))
