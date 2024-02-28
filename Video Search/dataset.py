@@ -24,7 +24,7 @@ class CocoObjectsCropDataset(CocoDetection):
             ids.extend(imgIds)
             print(f"Processed class {class_name}: {len(imgIds)} images")
         
-        # 如果指定了 subset_size，则随机抽取一个子集
+        # if subset_size is define, pick a subset of that size
         if subset_size is not None:
             ids = random.sample(ids, min(subset_size, len(ids)))
         
@@ -86,24 +86,14 @@ def crop_objects(video_path, detections_csv_path):
             
             # 将裁剪的图像添加到列表中
             cropped_images.append(crop_img)
-            # 生成并保存每个裁剪图像的唯一索引
+
+            # In
+
             index = f"{det['vidId']}_{det['frameNum']}_{det['detectedObjId']}"
             indexes.append(index)
 
-    # 返回裁剪的图像列表和索引列表
     return cropped_images, indexes
 
     ## return be like this
     ### cropped_images[i] --> indexes[i] "vidId_frameNum_detectedObjId"  
 
-
-# coco_root = 'path/to/coco/images'
-# annFile = 'path/to/coco/annotations/instances_train2017.json'
-# classes_of_interest = ['cat', 'dog']  # 你感兴趣的类别
-
-# transform = transforms.Compose([
-#     transforms.Resize((64, 64)),
-#     transforms.ToTensor(),
-# ])
-
-# dataset = CocoObjectsDataset(coco_root, annFile, classes_of_interest, transform=transform)

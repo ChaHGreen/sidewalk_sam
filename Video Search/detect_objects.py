@@ -12,7 +12,21 @@ def load_pretrained_model():
     model.eval()
     return model
 
-# Function to perform object detections
+# Function to perform detection in one frame
+
+def detect_frame(frame):
+    model = load_pretrained_model()
+    with torch.no_grad():
+        detection = model(frame)
+    prediction = detection[0]
+    boxes = prediction['boxes'].cpu().numpy()
+    labels = prediction['labels'].cpu().numpy()
+    scores = prediction['scores'].cpu().numpy()
+    
+    return boxes,labels,scores
+
+
+# Function to perform object detections in videos
 def detect_objects(processed_frames_info, model):
     detections = []
     for frame_info in processed_frames_info:

@@ -23,10 +23,10 @@ class ConvAutoencoder(nn.Module):
             nn.Conv2d(256, 512, 4, stride=2, padding=1),  # [batch, 512, 7, 7]
             nn.ReLU(True),
             nn.Flatten(),
-            nn.Linear(512 * 7 * 7, embedding_size)  # 添加全连接层以产生嵌入向量
+            nn.Linear(512 * 7 * 7, embedding_size)  # Fully connected layer to generate embeding
         )
 
-        self.decoder_input = nn.Linear(embedding_size, 512 * 7 * 7)  # 解码器输入层
+        self.decoder_input = nn.Linear(embedding_size, 512 * 7 * 7)  # Input to decoder
 
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(512, 256, 4, stride=2, padding=1),  # [batch, 256, 14, 14]
@@ -44,9 +44,9 @@ class ConvAutoencoder(nn.Module):
     def forward(self, x):
         embedding = self.encoder(x)
         x = self.decoder_input(embedding)
-        x = x.view(-1, 512, 7, 7)  # 将嵌入向量转换回卷积层期望的形状
+        x = x.view(-1, 512, 7, 7)  # reshape the embedding to match the input of conv layer
         x = self.decoder(x)
-        return x, embedding  # 返回重建图像和嵌入向量
+        return x, embedding  # Reconstructed image and embedding
 
 
 def train_autoencoder(dataset, epochs=10, batch_size=32, learning_rate=1e-3):
