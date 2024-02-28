@@ -61,7 +61,7 @@ ENV GI_TYPELIB_PATH="/usr/lib/x86_64-linux-gnu/girepository-1.0"
 RUN pip install --upgrade pip 
 
 # add torchvision
-RUN pip install torchvision==0.17 
+# RUN pip install torchvision==0.17 
 
 # && \
 #     pip install pipenv  && \

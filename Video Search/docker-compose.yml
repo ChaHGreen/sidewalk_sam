@@ -9,6 +9,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/assignment
     volumes:
       - E:/NYU CS/AI/CSGY6613-Project/Video Search:/workspaces/artificial_intelligence
+      - G:/A_NYU/coco:/workspaces/coco
     networks:
       - app-network
     deploy:

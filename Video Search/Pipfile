@@ -32,6 +32,9 @@ pytest = "==6.2.5"
 bertviz = "*"
 marimo = "*"
 
+moviepy = "*"
+torchvision = "==0.17"
+
 [dev-packages]
 
 [requires]
