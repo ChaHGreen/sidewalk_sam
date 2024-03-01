@@ -86,10 +86,10 @@ def train_autoencoder(dataset, epochs=10, batch_size=32, learning_rate=1e-3):
         with open("training_log.txt", "a") as f:
             f.write(f'Epoch {epoch+1}/{epochs}, Loss: {train_loss:.4f}\n')
         if epoch % 10==0:
-            torch.save(model.state_dict(), '/workspaces/artificial_intelligence/autoencoder_{}.pth'.format(epoch))
+            torch.save(model.state_dict(), '/workspaces/artificial_intelligence/checkpoint/autoencoder_{}.pth'.format(epoch))
     
     # Save the model
-    torch.save(model.state_dict(), '/workspaces/artificial_intelligence/autoencoder.pth')
+    torch.save(model.state_dict(), '/workspaces/artificial_intelligence/checkpoint/autoencoder.pth')
 
     print('Training complete')
     

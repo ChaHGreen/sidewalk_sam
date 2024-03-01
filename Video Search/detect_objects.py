@@ -102,4 +102,5 @@ if __name__ == "__main__":
     video_path = "videos/How Green Roofs Can Help Cities  NPR.mp4"
     processed_frames_info = preprocess_video_frames(video_path, skip_frames=10, frame_size=(224, 224), scale=True, normalize=True)
     detections = detect_objects(processed_frames_info, model)
+    print(detections)
 

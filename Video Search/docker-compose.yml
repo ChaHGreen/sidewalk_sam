@@ -9,7 +9,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/assignment
     volumes:
       - E:/NYU CS/AI/CSGY6613-Project/Video Search:/workspaces/artificial_intelligence
-      - G:/A_NYU/coco:/workspaces/coco
+      ##- G:/A_NYU/coco:/workspaces/coco
     networks:
       - app-network
     deploy:
@@ -28,7 +28,8 @@ services:
     command: tail -f /dev/null
 
   db:
-    image: postgres:latest
+    # image: mypostgres:pgvector
+    image: pgvector/pgvector:pg16
     container_name: video_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
