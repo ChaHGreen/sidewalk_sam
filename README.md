@@ -1,13 +1,9 @@
-# CSGY6613-Project
-Chase Huang
-
 0: Environment setup
 --
 ### 0.1 QGIS Installation
 - Download QGIS from [this site](https://qgis.org/en/site/) 
 - Click the downloaded `.msi` file and follow the instruction to install QGIS
 - When the installation is down, we will have a folder containing such file
-	![[Pasted image 20240412180819.png|500]]
 - Open `QGIS Desktop 3.36.1`
 	- Starting
 		![img1](README_imgs/QGIS1.png)
@@ -39,11 +35,26 @@ The implementation is showcased in `SAM_for_satellite_imagery.ipynb`
 - Instal `segment-geospatial`
 
 ### 1.2 Load the map
-- Load the satellite map and draw area of interst
+- Create the interactive map and overlay the satellite baseamap
+- Select area of interst
 	![img1](README_imgs/map1.png)
 - Download the image of the iou drawn as ` .tif `and show
-	![img1](README_imgs/map2.png)
+	![img1](README_imgs/satellite.tif)
 - Overlay the downloaded image as a new layer of the map
-
-### 1.3 SAM segmentation  for satellite_imagery
-- Load the pretrained SAM model
+	![img1](README_imgs/add_raster.png)
+### 1.3 SAM segmentation  for satellite imagery
+- Load the pretrained SAM model via  `SamGeo(model_type, checkpoint=ckpt,sam_kwargs)`
+- Perform SAM segmentation using `sam.generate(image,output=mask)`
+- Display and save binary mask `mask.tiff`using `sam.show_masks(cmap="binary_r")`
+	![img1](README_imgs/mask.png)
+- Display and save annotation image `sam.show_anns(axis="off",alpha=0.7,output="annotation.tif")`
+	![img1](README_imgs/annotation.png)
+- Display the comparision of satellite image and annotation image using `leafmap.image_comparison("satellite.tif", "annotation.tif", label1="Satellite", label2="Image Segmentation")`
+	![img1](README_imgs/comparision.png)
+- Overlay the segmentation result on the interactive map via `m.add_raster("annotation.tif",alpha=0.5,layer_name="Mask")`
+	![img1](README_imgs/add_raster_anno.png)
+- Convert the mask to verctor data format e.g., 
+	- Geo package `segment.gpkg` via `sam.tiff_to_gpkg(mask, vector, simplify_tolerance=None)`
+	- Shapefile `segment.shp` via `sam.tiff_to_vector(mask, shapefile)`
+	- Add vector on the interactive map via `m.add_vector(vector, layer_name="Vector", style=style)`
+	![img1](README_imgs/add_raster_vec.png)

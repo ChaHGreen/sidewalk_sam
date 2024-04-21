@@ -1,56 +1,60 @@
 // For format details, see https://aka.ms/devcontainer.json.
 {
-    "name": "SAM",
-    "build": { 
-        "context": "..",
-        "dockerfile": "../docker/Dockerfile.pytorch"
-    },
-    "runArgs": [
-        // "--rm",
-        "--privileged",
-        "--gpus", "all",
-        "--shm-size=1g",
-        "--ipc=host",
-        "--ulimit=stack=67108864",
-        "--network=host",
-        "--security-opt=seccomp:unconfined",
-        "--security-opt=apparmor:unconfined",
-        "--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-        "--env-file=.devcontainer/devcontainer.env"
-    ],
-    "containerEnv": { 
-        "DISPLAY": "${localEnv:DISPLAY}"
-    },
-    "forwardPorts": [8888, 10010],  // Including JupyterLab's default port and Sphinx autobuild port
-    "mounts": [
-        "source=H:/AI_final_proj/CSGY6613-Project,target=/workspaces/artificial_intelligence/SAM,type=bind,consistency=cached"
-    ],
-    "remoteUser": "vscode",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.vscode-pylance",
-                "ExecutableBookProject.myst-highlight",
-                "GitHub.copilot",
-                "njpwerner.autodocstring",
-                "ms-toolsai.jupyter",
-                "ms-toolsai.vscode-jupyter-powertoys",
-                "eamodio.gitlens",
-                "github.vscode-github-actions",
-                "jan-dolejsi.pddl",
-                "mechatroner.rainbow-csv",
-                "atlassian.atlascode",
-                "marimo-team.vscode-marimo"
-            ],
-            "settings": {
-                "terminal.integrated.profiles.linux": {
-                    "bash": {
-                        "path": "bash"
-                    }
-                },
-                "terminal.integrated.defaultProfile.linux": "bash"
-            }
-        }
-    },
-    "postStartCommand": "jb config sphinx artificial_intelligence && sphinx-autobuild --port 10010 artificial_intelligence _build/html"
+	"name": "ai-course-devcontainer",
+	"build": { 
+		"context": "..",
+		"dockerfile": "../docker/Dockerfile.pytorch"
+	},
+	"runArgs": [
+		// "--rm",
+		"--privileged",
+		"--gpus", "all",
+		"--shm-size=1g",
+		"--ipc=host",
+		"--ulimit=stack=67108864",
+		"--network=host",
+		"--security-opt=seccomp:unconfined",
+		"--security-opt=apparmor:unconfined",
+		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+		"--env-file=.devcontainer/devcontainer.env"
+	],
+	"containerEnv": { 
+		"DISPLAY": "${localEnv:DISPLAY}"
+ 	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [8000],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	//"postCreateCommand": "",
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "vscode",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.vscode-pylance",
+				"ExecutableBookProject.myst-highlight",
+				"GitHub.copilot",
+				"njpwerner.autodocstring",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.vscode-jupyter-powertoys",
+				"eamodio.gitlens",
+				"github.vscode-github-actions",
+				"jan-dolejsi.pddl",
+				"mechatroner.rainbow-csv",
+				"atlassian.atlascode",
+				"marimo-team.vscode-marimo"
+			],
+			"settings": {
+				"remote.autoForwardPorts": false,
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "bash"
+					}
+				},
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
+		}
+	},
+	"postStartCommand": "jb config sphinx artificial_intelligence && sphinx-autobuild --port 10010 artificial_intelligence _build/html"
 }
