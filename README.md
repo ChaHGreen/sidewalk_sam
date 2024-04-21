@@ -39,7 +39,7 @@ The implementation is showcased in `SAM_for_satellite_imagery.ipynb`
 - Select area of interst
 	![img1](README_imgs/map1.png)
 - Download the image of the iou drawn as ` .tif `and show
-	![img1](README_imgs/satellite.tif)
+	![img1](README_imgs/map2.png)
 - Overlay the downloaded image as a new layer of the map
 	![img1](README_imgs/add_raster.png)
 ### 1.3 SAM segmentation  for satellite imagery
