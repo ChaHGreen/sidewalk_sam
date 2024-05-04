@@ -211,6 +211,7 @@ outputs = sidewalk_model(**inputs, multimask_output=False)
 		![img1](README_imgs/prompting_results/2_without_prompt.png)
 - Enable point selection via `plotly`. This is implemanted in ` prompt_select(image_np)`
 	- Select target points and visualize via `visual_prompt_display(image_np, input_points, input_labels, input_boxes=None)`
+		![img1](README_imgs/prompting_results/ploty.png)
 	- The yelow points indicating object of interest and blue points indicating object of  no interest (not shown in this case)
 	- The blue points should be placed on the trees, promting the model not to include  other inrelavant trees
 		![img1](README_imgs/prompting_results/2_prompt.png)
