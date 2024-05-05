@@ -267,3 +267,25 @@ outputs = sidewalk_model(**inputs, multimask_output=False)
 
 	-  **Internet image**
 		![img1](README_imgs/prompting_results/1.png)
+
+4: Interactive app : Sidewlak segmentor
+--
+Code for this part is in `SidewalkSAM_gradio.ipynb`
+The demo video is in: [Demo Video](https://drive.google.com/file/d/1HXhsFtOMjji5S0Ow52vLdWS9mHJ7d_o-/view?usp=sharing)
+
+- Overview
+	- This app is based on the SAM fintuned on sidewalk images and integrated with visual prompts to allow users to upload an sidewalk image and visual prompts in point and boonding box format to obtain the accurate sidewalk segmentations in no time
+- App structure
+	- This app warp the `SidewalkPrompter` from step 3 to achieve the sidewalk segmentation
+	- Interface Design
+		- The interface si shown as the image blow. It contained 4 components:
+			- Image upload
+			- Bounding box prompt input
+			- Point prompt Input
+			- Segmentation display and save
+		- The user can open the the app, follow the instructions on the webpage -- upload sidewalk image -- input prompts -- submit, and they will get segmentation results easily
+		![img1](README_imgs/gradio/interface.png)
+	
+	- How the segmentaion looks alike
+		![img1](README_imgs/gradio/results.png)
+		- The segmentaion results could be saved to local
