@@ -1,22 +1,15 @@
 0: Environment setup
 --
-### 0.1 QGIS Installation
-- Download QGIS from [this site](https://qgis.org/en/site/) 
-- Click the downloaded `.msi` file and follow the instruction to install QGIS
-- When the installation is down, we will have a folder containing such file
-- Open `QGIS Desktop 3.36.1`
-	- Starting
-		![img1](README_imgs/QGIS1.png)
-	- The main page
-		![img1](README_imgs/QGIS2.png)
-## 0.2 Docker container setup
-- Download `.devcontainer`, `requirements`  and `docker/Dockerfile.pytorch` from [this repo]( https://github.com/pantelis/artificial-intelligence)
-- Set the correct path to the dockerfile in`.devcontainer/devcontainer.json`
+## 0.1 (Option 1) Colab environment
+- This repo can be run in colab environment. However, for finetuning the SAM model, free computation units in colab might not be enough. In this case, you can choose option 2, docker container, utilizing the local GPU resources.
+## 0.2 (Option 2) Docker container setup
+- Make sure `.devcontainer`, `requirements` , `docker/Dockerfile.pytorch` and `docker/docker-font.conf` sucessfully clone.
+- Set the correct path to the Dockerfile in`.devcontainer/devcontainer.json`
 - `Ctrl+Shift+P` open control pannel and seaech for `Dev Containers` and start to build
 
 1: SAM implementation for satellite imagery
 --
-The implementation is showcased in `SAM_for_satellite_imagery.ipynb`
+The part showcased the implementation of SAM model for geospatial data, following [samgeo](https://samgeo.gishub.org/). The relevant code is in [SAM_for_satellite_imagery.ipynb](https://github.com/ChaHGreen/CSGY6613-Project/blob/09b2c7af441a21c199de7a3dfb6a5061c90c0cf6/SAM_for_satellite_imagery.ipynb)
 ### 1.1 Environment 
 - a few packages need to change version for the `samgeo` to work
 ```	
@@ -39,7 +32,7 @@ The implementation is showcased in `SAM_for_satellite_imagery.ipynb`
 - Select area of interst
 	![img1](README_imgs/map1.png)
 - Download the image of the iou drawn as ` .tif `and show
-	![img1](README_imgs/satellite.tif)
+	![img1](README_imgs/satellite.jpg)
 - Overlay the downloaded image as a new layer of the map
 	![img1](README_imgs/add_raster.png)
 ### 1.3 SAM segmentation  for satellite imagery
@@ -61,7 +54,7 @@ The implementation is showcased in `SAM_for_satellite_imagery.ipynb`
 
 2:  Finetune the SAM model for the sidewalks dataset
 --
-Code for this session is in `Fintune_SAM.ipynb`. 
+This part employed SAM model from [Transformers](https://huggingface.co/docs/transformers/en/model_doc/sam). Including code for fintuning SAM model on a custom dataset for a specific usage, inspired by this [repo](https://github.com/bnsreenu/python_for_microscopists/blob/master/331_fine_tune_SAM_mito.ipynb). Relavant code is in [Fintune_SAM.ipynb](https://github.com/ChaHGreen/CSGY6613-Project/blob/09b2c7af441a21c199de7a3dfb6a5061c90c0cf6/Fintune_SAM.ipynb). 
 ### 2.1 Environment Setup
 - Install the following pacakges/repo
 ```
@@ -77,9 +70,9 @@ Code for this session is in `Fintune_SAM.ipynb`.
 !pip install tifffile
 ```
 
-### 2.2 Sidewalk Traning Image Preparation
+### 2.2 Sidewalk Fintuning Dataset Preparation
 - Sidewalk data Link in Hugging face: [link](https://huggingface.co/datasets/back2classroom/sidewalks)
-- Stream the dataset : Train/Validation
+- Stream the dataset from hugging face.
 ```
 from datasets import load_dataset
 dataset = load_dataset("back2classroom/sidewalks", split='train', streaming=True)    ##split='train' /'val' 
@@ -103,12 +96,13 @@ for item in stream_dataset:
         ground_truth_mask[ground_truth_mask != 0] = 255   ## Turn the mask into binary image
 	ground_truth_mask= (ground_truth_mask / 255.).astype(np.uint8)    ## rescale the pxiel values to [0,1]
 ```
+
 - Prepare the pytorch dataset
 	- There are to options to prepare the dataset
-		- `SAMDataset(Dataset)` : Option 2 in code
+		- `SAMDataset(Dataset)` : as Option 2 in the notebook
 			- Store the streaming data to loacal and inherits PyTorch's `Dataset` class
 			- Must include the  ***Basic image and mask processing***  above for each image-mask pair in `__getitem__`
-		- `SAMIterableDataset(IterableDataset)`: Option 1 in code
+		- `SAMIterableDataset(IterableDataset)`: as Option 1 in the notebook
 			- Designed to work with iterable datasets like streaming data when the handling large datasets that don't fit into memory entirely
 			- Must include the  ***Basic image and mask processing***  above in `__iter__`
 	- Both option work depends on resources avaliable and besides the basic image and mask processing the dataset class must include:
@@ -140,10 +134,28 @@ EPOCH: 2
 Mean loss: 0.3775089961471198
 ```
 - Link to the finetuned model checkpoint : [checkpoint.pth](https://drive.google.com/file/d/14oG9NTEixoisml8vAFJz_1Nf9yX3GJ37/view?usp=sharing)
+- Note that the correct loss should be positive, or else there is something wrong with the data preparation(e.g., didn't resacle the pxiel range to [0,1])
 
 ### 2.3 Inference with the fintuned SAM model in sidewalk images
 - Load `sam-vit-base` configration and the fintuned model weight
 - Prepare the infernce image and prompt(optional) to process them into tensor to as model input use the same SAM processor
+- Key code
+```
+model_config = SamConfig.from_pretrained("facebook/sam-vit-base")
+processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+
+# Create an instance of the model architecture with the loaded configuration
+sidewalk_model = SamModel(config=model_config)
+
+#Update the model by loading the weights from saved file.
+checkpoint_path="/content/drive/MyDrive/SAM/checkpoint.pth_1"
+checkpoint = torch.load(checkpoint_path)
+sidewalk_model.load_state_dict(checkpoint['model_state'])
+
+  ## Load the model to device
+device = "cuda" if torch.cuda.is_available() else "cpu" 
+sidewalk_model.to(device)
+```
 - The inference result on traning samples
 	![img1](README_imgs/train_sample.png)
 - The inference result on unseen large `tif` image
@@ -153,7 +165,7 @@ Mean loss: 0.3775089961471198
 
 3: Visual Prompting for sidewalk occlusion
 --
-code for this section is in notebook `Sidewalk_visual_prompting.ipynb`
+Once obtained the finetuned SAM model for the sidewalk image, we can improve the segmentation performance via visual prompting (e.g., handle sidewalk occlusion). Similarly, this prompting techniques is univeral to all the SAM segmentation tasks. Code for this part is in [Sidewalk_visual_prompting.ipynb](https://github.com/ChaHGreen/CSGY6613-Project/blob/09b2c7af441a21c199de7a3dfb6a5061c90c0cf6/Sidewalk_visual_prompting.ipynb)
 ### 3.1  Basics on visual prompting
 - ***Whtat's visual prompting?***
 	- Visual Prompting is a method in which the user can **label just a few areas of an image** to improve the segmentation accuracy. This is a much faster and easier approach than conventional labeling, which typically requires completely labeling every image in the training set.
@@ -240,37 +252,12 @@ outputs = sidewalk_model(**inputs, multimask_output=False)
 		![img1](README_imgs/prompting_results/8_with_prompt.png)
 		![img1](README_imgs/prompting_results/8.png)
 
-	- **Sidewalk validation image 5**
-		![img1](README_imgs/prompting_results/9_without_prompt.png)
-		![img1](README_imgs/prompting_results/9_with_prompt.png)
-		![img1](README_imgs/prompting_results/9.png)
-
-	- **Sidewalk validation image 6**
-		![img1](README_imgs/prompting_results/10_without_prompt.png)
-		![img1](README_imgs/prompting_results/10_with_prompt.png)
-		![img1](README_imgs/prompting_results/10.png)
-
-	- **Sidewalk validation image 7**
-		![img1](README_imgs/prompting_results/3_without_prompt.png)
-		![img1](README_imgs/prompting_results/3_with_prompt.png)
-		![img1](README_imgs/prompting_results/3.png)
-
-	- **Sidewalk validation image 8**
-		![img1](README_imgs/prompting_results/4_without_prompt.png)
-		![img1](README_imgs/prompting_results/4_with_prompt.png)
-		![img1](README_imgs/prompting_results/4.png)
-
-	- **Sidewalk validation image 9**
-		![img1](README_imgs/prompting_results/5_without_prompt.png)
-		![img1](README_imgs/prompting_results/5_with_prompt.png)
-		![img1](README_imgs/prompting_results/5.png)
-
 	-  **Internet image**
 		![img1](README_imgs/prompting_results/1.png)
 
 4: Interactive app : Sidewlak segmentor
 --
-Code for this part is in `SidewalkSAM_gradio.ipynb`
+Now, with the finetuned model and the prompting techniques above, we are ready to create an sidewalk segmentation interactive app. Code for this part is in [SidewalkSAM_gradio.ipynb](https://github.com/ChaHGreen/CSGY6613-Project/blob/main/SidewalkSAM_gradio.ipynb)
 The demo video is in: [Demo Video](https://drive.google.com/file/d/1HXhsFtOMjji5S0Ow52vLdWS9mHJ7d_o-/view?usp=sharing)
 
 - Overview
